@@ -12,7 +12,9 @@ export const connectToDatabase = async () => {
     cached.promise = cached.promise || mongoose.connect(MONGODB_URI, {
         dbName: 'hope',
         bufferCommands: false,
-    })
+    }).then(() => {
+        console.log('MongoDB Connected');
+    });
 
     cached.conn = await cached.promise;
 
