@@ -14,8 +14,8 @@ export const connectToDatabase = async () => {
         bufferCommands: false,
     }).then(() => {
         console.log('MongoDB Connected');
-    });
-
+    })
+    
     cached.conn = await cached.promise;
 
     return cached.conn;

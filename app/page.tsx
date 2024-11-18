@@ -121,10 +121,42 @@
 // }
 
 import React from 'react'
+import { connectToDatabase } from '@/lib/database'
+import User from '@/lib/database/models/user.model';
+import CreateUserPage from './CreateUserPage';
 
 const page = () => {
+  type CreateUserParams = {
+    clerkId: string
+    firstName: string
+    lastName: string
+    username: string
+    email: string
+    photo: string
+  }
+
+  const user: CreateUserParams = {
+    clerkId: "1",
+    firstName: "Poop",
+    lastName: "Poop",
+    username: "Poop",
+    email: "medy.gunawan@binus.ac.id",
+    photo: "Bruh"
+  }
+
+  const createTest = async (params:CreateUserParams) => {
+    await connectToDatabase();
+    const newUser = await User.create(params);
+    return newUser;
+  }
+
   return (
-    <div>Hello</div>
+    <div>
+      <CreateUserPage>
+
+      </CreateUserPage>
+    </div>
+    // (createTest(user))
   )
 }
 
