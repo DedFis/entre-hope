@@ -8,7 +8,10 @@ import { useRouter } from 'next/navigation';
 
 
 interface Campaign {
-  owner: string;
+  owner: {
+    _id: string,
+    username: string,
+  };
   title: string;
   description: string;
   target: string | number;
