@@ -48,7 +48,7 @@ const DisplayCampaigns: React.FC<DisplayCampaignsProps> = ({ title, isLoading, c
 
       <div className="flex flex-wrap mt-[20px] gap-[26px]">
         {isLoading && (
-          <img src={loader} alt="loader" className="w-[100px] h-[100px] object-contain" />
+          <img src={loader.src} alt="loader" className="w-[100px] h-[100px] object-contain" />
         )}
 
         {!isLoading && campaigns.length === 0 && (
