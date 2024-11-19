@@ -20,7 +20,6 @@ import { getUserByClerkId } from './user.actions'
 const populateCampaign = (query: any) => {
   return query
     .populate({ path: 'owner', model: User, select: 'username' })
-    // .populate({ path: 'category', model: Category, select: '_id name' })
 }
 
 // owner: { type: Schema.Types.ObjectId, ref: 'User' }, // Reference to the User model
@@ -85,17 +84,18 @@ export async function getCampaignById(campaignId: string) {
 }
 
 // DONATE TO CAMPAIGN
-export async function addDonation(campaignId: string, userId: string, ammount: number) {
+export async function addDonation(campaignId: string, userId: string, amount: string) {
     try {
         await connectToDatabase()
 
         const campaign = await populateCampaign(Campaign.findById(campaignId))
+        const amountNumber = Number.parseInt(amount);
 
         if (!campaign) throw new Error('Campaign not found')
 
         campaign.donators.push(userId);
-        campaign.donations.push(ammount);
-        campaign.ammountCollected += ammount;
+        campaign.donations.push(amountNumber);
+        campaign.ammountCollected += amountNumber;
 
         await campaign.save()
     } catch (error) {
@@ -171,7 +171,7 @@ export async function getCampaignsByUser({ userId, limit = 6, page }: GetCampaig
   try {
     await connectToDatabase()
 
-    const conditions = { organizer: userId }
+    const conditions = { owner: userId }
     const skipAmount = (page - 1) * limit
 
     const campaignsQuery = Campaign.find(conditions)
@@ -183,6 +183,20 @@ export async function getCampaignsByUser({ userId, limit = 6, page }: GetCampaig
     const campaignsCount = await Campaign.countDocuments(conditions)
 
     return { data: JSON.parse(JSON.stringify(campaigns)), totalPages: Math.ceil(campaignsCount / limit) }
+  } catch (error) {
+    handleError(error)
+  }
+}
+
+export async function getDonators(_id: string) {
+  try {
+    await connectToDatabase()
+
+    const campaign = await getCampaignById(_id);
+
+    if (!campaign) throw new Error('Campaign not found')
+
+    return { donators: JSON.parse(JSON.stringify(campaign.donators)), donations: JSON.parse(JSON.stringify(campaign.donations)) }
   } catch (error) {
     handleError(error)
   }

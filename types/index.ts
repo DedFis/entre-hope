@@ -100,6 +100,14 @@ export type CreateUserParams = {
       ammount: number
     }
   }
+
+  export type Donator = {
+    donator: {
+      _id: string,
+      username: string,
+    };
+    donation: string;
+  }
   
   // ====== CATEGORY PARAMS
   export type CreateCategoryParams = {

@@ -37,6 +37,8 @@ const DisplayCampaigns: React.FC<DisplayCampaignsProps> = ({ title, isLoading, c
   };
 
   const handleNavigate = (campaign: Campaign) => {
+    // const urlParams = `campaign=${campaign}`
+
     router.push(`/campaign-details/${campaign.title}` + "?" + createQueryString("campaign", campaign))
   }
   

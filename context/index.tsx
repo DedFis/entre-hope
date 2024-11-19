@@ -2,13 +2,15 @@
 
 import React, { useContext, createContext } from 'react';
 import { useAuth } from '@clerk/nextjs'
-import { createCampaign, getAllCampaigns } from '@/lib/actions/campaign.actions';
+import { createCampaign, getAllCampaigns, getDonators, addDonation } from '@/lib/actions/campaign.actions';
 import { getUserByClerkId } from '@/lib/actions/user.actions';
-import { SearchParamProps } from '@/types';
+import { Donator, SearchParamProps } from '@/types';
 
 interface StateContextType {
     createCampaign: (form: CampaignForm) => Promise<void>;
     getCampaigns: (props: SearchParamProps) => Promise<any>;
+    donate: (campaignId: string, amount: string) => Promise<any>;
+    getDonations: (campaignId: string) => Promise<any>;
 }
 
 const StateContext = createContext<StateContextType | null>(null);
@@ -68,18 +70,7 @@ export const StateContextProvider = ({ children } : { children : React.ReactNode
 
     if (campaigns) {
         const parsedCampaings = campaigns?.data
-
-        // const parsedCampaings = campaigns.map((campaign, i) => ({
-        //   owner: campaign.owner,
-        //   title: campaign.title,
-        //   description: campaign.description,
-        //   target: campaign.target.toString(),
-        //   deadline: campaign.deadline.toNumber(),
-        //   amountCollected: campaign.amountCollected.toString(),
-        //   image: campaign.image,
-        //   pId: i
-        // }));
-    
+        
         return parsedCampaings;
     }
   }
@@ -92,27 +83,41 @@ export const StateContextProvider = ({ children } : { children : React.ReactNode
 //     return filteredCampaigns;
 //   }
 
-//   const donate = async (pId, amount) => {
-//     const data = await contract.call('donateToCampaign', [pId], { value: ethers.utils.parseEther(amount)});
+  const donate = async (campaignId: string, amount: string) => {
+    // const data = await contract.call('donateToCampaign', [pId], { value: ethers.utils.parseEther(amount)});
 
-//     return data;
-//   }
+    const res = await fetch('/api/webhook/clerk/user', {
+      method: 'GET',
+      headers: { 'content-type': 'application/json' },
+    });
 
-//   const getDonations = async (pId) => {
-//     const donations = await contract.call('getDonators', [pId]);
-//     const numberOfDonations = donations[0].length;
+    const resData = await res.json();
 
-//     const parsedDonations = [];
+    const userId = resData.user.id;
 
-//     for(let i = 0; i < numberOfDonations; i++) {
-//       parsedDonations.push({
-//         donator: donations[0][i],
-//         donation: ethers.utils.formatEther(donations[1][i].toString())
-//       })
-//     }
+    const data = await addDonation(campaignId, userId, amount);
 
-//     return parsedDonations;
-//   }
+    return data;
+  }
+
+  const getDonations = async (campaignId: string): Promise<Donator[]> => {
+    const donations = await getDonators(campaignId);
+
+    console.log(donations);
+
+    const numberOfDonations = donations?.donations.length || 0;
+
+    const parsedDonations: Donator[] = [];
+
+    for(let i = 0; i < numberOfDonations; i++) {
+      parsedDonations.push({
+        donator: donations?.donators[i],
+        donation: donations?.donations[i].toString()
+      })
+    }
+
+    return parsedDonations;
+  }
 
 
   return (
@@ -124,8 +129,8 @@ export const StateContextProvider = ({ children } : { children : React.ReactNode
         createCampaign: publishCampaign,
         getCampaigns,
         // getUserCampaigns,
-        // donate,
-        // getDonations
+        donate,
+        getDonations
       }}
     >
       {children}
