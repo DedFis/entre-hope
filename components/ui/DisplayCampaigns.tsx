@@ -52,11 +52,13 @@ const DisplayCampaigns: React.FC<DisplayCampaignsProps> = ({ title, isLoading, c
           </p>
         )}
 
-        {!isLoading && campaigns.length > 0 && campaigns.map((campaign) => <FundCard 
-          key={uuidv4()}
-          {...campaign}
-          handleClick={() => handleNavigate(campaign)}
-        />)}
+        {!isLoading && campaigns.length > 0 && campaigns.map((campaign) => 
+          <FundCard 
+            key={uuidv4()}
+            {...campaign}
+            handleClick={() => handleNavigate(campaign)}
+          />
+        )}
       </div>
     </div>
   )

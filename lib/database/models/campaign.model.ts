@@ -23,7 +23,7 @@ const CampaignSchema = new Schema({
   amountCollected: { type: Number, default: 0 },
   image: { type: String, required: true },
   donators: [{ type: Schema.Types.ObjectId, ref: 'User' }], // References to Users
-  donations: [{ type: Number }], // Corresponding donation amounts
+  donations: { type: [Number] }, // Corresponding donation amounts
 });
 
 const Campaign = models.Campaign || model('Campaign', CampaignSchema);

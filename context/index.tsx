@@ -1,61 +1,88 @@
-// import React, { useContext, createContext } from 'react';
+"use client"
 
-// import { useAddress, useContract, useMetamask, useContractWrite } from '@thirdweb-dev/react';
-// import { ethers } from 'ethers';
-// import { EditionMetadataWithOwnerOutputSchema } from '@thirdweb-dev/sdk';
+import React, { useContext, createContext } from 'react';
+import { useAuth } from '@clerk/nextjs'
+import { createCampaign, getAllCampaigns } from '@/lib/actions/campaign.actions';
+import { getUserByClerkId } from '@/lib/actions/user.actions';
+import { SearchParamProps } from '@/types';
 
-// const StateContext = createContext();
+interface StateContextType {
+    createCampaign: (form: CampaignForm) => Promise<void>;
+    getCampaigns: (props: SearchParamProps) => Promise<any>;
+}
 
-// interface CampaignForm {
-//   title: string;
-//   description: string;
-//   target: string;
-//   deadline: string;
-//   image: string;
-// }
+const StateContext = createContext<StateContextType | null>(null);
 
-// export const StateContextProvider = ({ children }) => {
-//   const { contract } = useContract('0xf59A1f8251864e1c5a6bD64020e3569be27e6AA9');
-//   const { mutateAsync: createCampaign } = useContractWrite(contract, 'createCampaign');
+interface CampaignForm {
+  name: string;
+  title: string;
+  description: string;
+  target: string;
+  deadline: string;
+  image: string;
+}
 
-//   const address = useAddress(); // get clerk NOTE
-//   const connect = useMetamask();
+export const StateContextProvider = ({ children } : { children : React.ReactNode }) => {
+    const publishCampaign = async (form: CampaignForm) => {
+        try {
+            console.log(form);
 
-//   const publishCampaign = async (form) => {
-//     try {
-//       const data = await createCampaign({
-// 				args: [
-// 					address, // owner
-// 					form.title, // title
-// 					form.description, // description
-// 					form.target,
-// 					new Date(form.deadline).getTime(), // deadline,
-// 					form.image,
-// 				],
-// 			});
+            const res = await fetch('/api/webhook/clerk/user', {
+              method: 'GET',
+              headers: { 'content-type': 'application/json' },
+            });
+      
+            const resData = await res.json();
 
-//       console.log("contract call success", data)
-//     } catch (error) {
-//       console.log("contract call failure", error)
-//     }
-//   }
+            const userId = resData.user.id;
+            
+            const campaign = {
+                owner : userId,
+                title: form.title, // title
+                description: form.description, // description
+                target: Number.parseInt(form.target),
+                deadline: new Date(form.deadline), // deadline,
+                image: form.image,
+            };
+            
+            console.log(campaign);
 
-//   const getCampaigns = async () => {
-//     const campaigns = await contract.call('getCampaigns');
+            const data = await createCampaign({
+                userId: userId, //Owner
+                campaign: campaign,
+                path: '/'
+            });
 
-//     const parsedCampaings = campaigns.map((campaign, i) => ({
-//       owner: campaign.owner,
-//       title: campaign.title,
-//       description: campaign.description,
-//       target: ethers.utils.formatEther(campaign.target.toString()),
-//       deadline: campaign.deadline.toNumber(),
-//       amountCollected: ethers.utils.formatEther(campaign.amountCollected.toString()),
-//       image: campaign.image,
-//       pId: i
-//     }));
+            console.log("contract call success", data)
+        } catch (error) {
+            console.log("contract call failure", error)
+        }
+  }
 
-//     return parsedCampaings;
-//   }
+  const getCampaigns = async ({ searchParams }: SearchParamProps) => {
+    // query: string, page: number, limit: number
+    const page = Number(searchParams?.page) || 1;
+    const searchText = (searchParams?.query as string) || '';
+    
+    const campaigns = await getAllCampaigns({query: searchText, limit: 0, page});
+
+    if (campaigns) {
+        const parsedCampaings = campaigns?.data
+
+        // const parsedCampaings = campaigns.map((campaign, i) => ({
+        //   owner: campaign.owner,
+        //   title: campaign.title,
+        //   description: campaign.description,
+        //   target: campaign.target.toString(),
+        //   deadline: campaign.deadline.toNumber(),
+        //   amountCollected: campaign.amountCollected.toString(),
+        //   image: campaign.image,
+        //   pId: i
+        // }));
+    
+        return parsedCampaings;
+    }
+  }
 
 //   const getUserCampaigns = async () => {
 //     const allCampaigns = await getCampaigns();
@@ -88,22 +115,30 @@
 //   }
 
 
-//   return (
-//     <StateContext.Provider
-//       value={{ 
-//         address,
-//         contract,
-//         connect,
-//         createCampaign: publishCampaign,
-//         getCampaigns,
-//         getUserCampaigns,
-//         donate,
-//         getDonations
-//       }}
-//     >
-//       {children}
-//     </StateContext.Provider>
-//   )
-// }
+  return (
+    <StateContext.Provider
+      value={{ 
+        // address,
+        // contract,
+        // connect,
+        createCampaign: publishCampaign,
+        getCampaigns,
+        // getUserCampaigns,
+        // donate,
+        // getDonations
+      }}
+    >
+      {children}
+    </StateContext.Provider>
+  )
+}
 
-// export const useStateContext = () => useContext(StateContext);
+export const useStateContext = () => {
+  const context = useContext(StateContext);
+
+  if (!context) {
+    throw new Error("useStateContext must be used within a StateContextProvider");
+  }
+
+  return context;
+};

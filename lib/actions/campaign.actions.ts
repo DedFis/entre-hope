@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 
 import { connectToDatabase } from '@/lib/database'
-import Campaign from '@/lib/database/models/campaign.model'
+import Campaign, { ICampaign } from '@/lib/database/models/campaign.model'
 import User from '@/lib/database/models/user.model'
 import { handleError } from '@/lib/utils'
 
@@ -15,22 +15,52 @@ import {
   GetCampaignsByUserParams,
   GetRelatedCampaignsByCategoryParams,
 } from '@/types'
+import { getUserByClerkId } from './user.actions'
 
 const populateCampaign = (query: any) => {
   return query
-    .populate({ path: 'owner', model: User, select: '_id firstName lastName' })
+    .populate({ path: 'owner', model: User, select: 'username' })
     // .populate({ path: 'category', model: Category, select: '_id name' })
 }
+
+// owner: { type: Schema.Types.ObjectId, ref: 'User' }, // Reference to the User model
+//   title: { type: String, required: true },
+//   description: { type: String, required: true },
+//   target: { type: Number, required: true },
+//   deadline: { type: Date, required: true },
+//   amountCollected: { type: Number, default: 0 },
+//   image: { type: String, required: true },
+//   donators: [{ type: Schema.Types.ObjectId, ref: 'User' }], // References to Users
+//   donations: [{ type: Number }], // Corresponding donation amounts
 
 // CREATE
 export async function createCampaign({ userId, campaign, path }: CreateCampaignParams) {
   try {
     await connectToDatabase()
 
-    const owner = await User.findById(userId)
+    const owner = await getUserByClerkId(userId);
+
     if (!owner) throw new Error('Owner not found')
 
-    const newCampaign = await Campaign.create({ ...campaign, owner: userId })
+    const campaignValue = {
+      owner: owner._id,
+      title: campaign.title,
+      description: campaign.description,
+      target: campaign.target,
+      deadline: campaign.deadline,
+      amountCollected: 0,
+      image: campaign.image,
+      donators: [],
+      donations: []
+    }
+
+    console.log(campaignValue)
+    
+    const newCampaign = await Campaign.create(campaignValue)
+    // await newCampaign.save();
+
+    console.log(newCampaign)
+    
     revalidatePath(path)
 
     return JSON.parse(JSON.stringify(newCampaign))
@@ -109,7 +139,7 @@ export async function deleteEvent({ campaignId, path }: DeleteCampaignParams) {
 }
 
 // GET ALL EVENTS
-export async function getAllCampaigns({ query, limit = 6, page, category }: GetAllCampaignsParams) {
+export async function getAllCampaigns({ query, limit = 0, page }: GetAllCampaignsParams) {
   try {
     await connectToDatabase()
 

@@ -19,7 +19,6 @@ export type CreateUserParams = {
   export type CreateCampaignParams = {
     userId: string
     campaign: {
-        _id: string
         owner: string
         title: string
         description: string
@@ -54,7 +53,6 @@ export type CreateUserParams = {
   
   export type GetAllCampaignsParams = {
     query: string
-    category: string
     limit: number
     page: number
   }

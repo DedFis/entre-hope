@@ -4,7 +4,7 @@ import './globals.css'
 
 import { ClerkProvider } from "@clerk/nextjs";
 import { Sidebar, Navbar } from "../components/ui";
-// import { StateContextProvider } from "../context"; // Import the context provider
+import { StateContextProvider } from "../context"; // Import the context provider
 
 export const metadata: Metadata = {
   title: "Crowdfunding App",
@@ -20,7 +20,7 @@ export default function RootLayout({
     <ClerkProvider>  
       <html lang="en">
         <body>
-          {/* <StateContextProvider> */}
+          <StateContextProvider>
             <div className="relative sm:-8 p-4 bg-[#13131a] min-h-screen flex flex-row">
               {/* Sidebar */}
               <div className="sm:flex hidden mr-10 relative">
@@ -33,7 +33,7 @@ export default function RootLayout({
                 {children}
               </div>
             </div>
-          {/* </StateContextProvider> */}
+          </StateContextProvider>
         </body>
       </html>
     </ClerkProvider>

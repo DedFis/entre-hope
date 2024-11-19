@@ -3,7 +3,7 @@ import React from 'react'
 interface FormFieldProps {
   labelName?: string;
   placeholder: string;
-  inputType: string;
+  inputType?: string;
   isTextArea?: boolean;
   value: string | number;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
