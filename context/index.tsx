@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useContext, createContext } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import {
   createCampaign,
   getAllCampaigns,
@@ -13,7 +13,7 @@ import {
 import { Donator, SearchParamProps } from "@/types";
 
 interface StateContextType {
-  createCampaign: (form: CampaignForm) => Promise<void>;
+  createCampaign: (form: CampaignForm) => Promise<any | null>;
   getCampaigns: (props: SearchParamProps) => Promise<any>;
   donate: (campaignId: string, amount: string) => Promise<any>;
   getDonations: (campaignId: string) => Promise<any>;
@@ -36,16 +36,22 @@ export const StateContextProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const router = useRouter();
+
   const publishCampaign = async (form: CampaignForm) => {
     try {
-      console.log(form);
-
       const res = await fetch("/api/webhook/clerk/user", {
         method: "GET",
         headers: { "content-type": "application/json" },
       });
 
       const resData = await res.json();
+
+      if (resData.error) {
+        alert('Please Sign In before Creating a Campaign.');
+        router.push('/');
+        return null;
+      }
 
       const userId = resData.user.id;
 
@@ -57,8 +63,6 @@ export const StateContextProvider = ({
         deadline: new Date(form.deadline), // deadline,
         image: form.image,
       };
-
-      console.log(campaign);
 
       const data = await createCampaign({
         userId: userId, //Owner
@@ -85,7 +89,6 @@ export const StateContextProvider = ({
 
     if (campaigns) {
       const parsedCampaings = campaigns?.data;
-      console.log(parsedCampaings);
 
       return parsedCampaings;
     }
@@ -93,26 +96,31 @@ export const StateContextProvider = ({
 
   const getUserCampaigns = async () => {
     const page = 1;
-    
+
     const userResponse = await fetch("/api/webhook/clerk/user", {
       method: "GET",
       headers: { "content-type": "application/json" },
     });
 
     const userData = await userResponse.json();
-    const userId = userData.user.id;
 
-    const campaigns = await getCampaignsByUser({
-      userId: userId,
-      limit: 0,
-      page
-    });
-
-    if (campaigns) {
-      const parsedCampaings = campaigns?.data;
-      console.log(parsedCampaings);
-
-      return parsedCampaings;
+    if (userData.error) {
+      alert('Please Sign In first.');
+      return null;
+    } else {
+      const userId = userData.user.id;
+  
+      const campaigns = await getCampaignsByUser({
+        userId: userId,
+        limit: 0,
+        page
+      });
+  
+      if (campaigns) {
+        const parsedCampaings = campaigns?.data;
+  
+        return parsedCampaings;
+      }
     }
   };
 
@@ -141,6 +149,12 @@ export const StateContextProvider = ({
     });
 
     const userData = await userResponse.json();
+
+    if (userData.error) {
+      alert('Please Sign In before Donating.');
+      return null;
+    }
+
     const userId = userData.user.id;
 
     const donationId = generateDonationID(userId);
@@ -178,8 +192,6 @@ export const StateContextProvider = ({
 
   const getDonations = async (campaignId: string): Promise<Donator[]> => {
     const donations = await getDonators(campaignId);
-
-    console.log(donations);
 
     const numberOfDonations = donations?.donations.length || 0;
 

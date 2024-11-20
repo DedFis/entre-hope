@@ -26,7 +26,6 @@ const CreateCampaign = () => {
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    console.log(form);
     e.preventDefault();
 
     checkIfImage(form.image, async (exists: boolean) => {
@@ -40,8 +39,6 @@ const CreateCampaign = () => {
             deadline: form.deadline,
             image: form.image
         }
-
-        console.log(campaignData);
 
         await createCampaign(campaignData);
         setIsLoading(false);

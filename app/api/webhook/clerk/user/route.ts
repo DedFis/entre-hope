@@ -6,7 +6,7 @@ export async function GET() {
   const { userId } = await auth()
 
   if (!userId) {
-    return new NextResponse('Unauthorized', { status: 401 })
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 401 })
   }
 
   // Get the Backend API User object when you need access to the user's information

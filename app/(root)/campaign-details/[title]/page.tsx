@@ -19,7 +19,6 @@ const CampaignDetails = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [amount, setAmount] = useState('');
     const [donators, setDonators] = useState<Donator[]>([]);
-    // const [donating, setDonating] = useState(false);
 
     const searchParams = useSearchParams();
     const data = searchParams.get('campaign') ?? " ";

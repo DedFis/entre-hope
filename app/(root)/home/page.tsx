@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 
 import { DisplayCampaigns } from '../../../components/ui';
 import { useStateContext } from '../../../context'
@@ -11,6 +11,8 @@ const Home = () => {
   const [campaigns, setCampaigns] = useState([]);
 
   const { getCampaigns } = useStateContext();
+
+  const initialized = useRef(false);
 
   const fetchCampaigns = async () => {
     setIsLoading(true);
@@ -30,7 +32,10 @@ const Home = () => {
   }
 
   useEffect(() => {
-    fetchCampaigns();
+    if(!initialized.current) {
+      initialized.current = true;
+      fetchCampaigns();
+    }
   }, []);
 
   return (
