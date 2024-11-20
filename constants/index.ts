@@ -12,7 +12,7 @@ export const navlinks: NavLink[] = [
   {
     name: 'dashboard',
     imgUrl: dashboard,
-    link: '/',
+    link: '/home',
   },
   {
     name: 'campaign',

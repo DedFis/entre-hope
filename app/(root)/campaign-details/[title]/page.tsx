@@ -26,7 +26,7 @@ const CampaignDetails = () => {
 
     useEffect(() => {
         if (data === " ") {
-            router.push('/');
+            router.push('/home');
         }
     }, [data, router]);
 

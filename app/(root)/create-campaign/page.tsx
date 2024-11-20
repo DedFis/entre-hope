@@ -45,7 +45,7 @@ const CreateCampaign = () => {
 
         await createCampaign(campaignData);
         setIsLoading(false);
-        router.push('/');
+        router.push('/home');
       } else {
         alert('Provide valid image URL')
         setForm({ ...form, image: '' });
