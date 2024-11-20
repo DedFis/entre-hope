@@ -19,6 +19,7 @@ const CampaignDetails = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [amount, setAmount] = useState('');
     const [donators, setDonators] = useState<Donator[]>([]);
+    // const [donating, setDonating] = useState(false);
 
     const searchParams = useSearchParams();
     const data = searchParams.get('campaign') ?? " ";
@@ -34,6 +35,7 @@ const CampaignDetails = () => {
     }
 
     const campaign = JSON.parse(data);
+    console.log(campaign);
 
     const initialized = useRef(false)
 
@@ -52,12 +54,29 @@ const CampaignDetails = () => {
     }
   }, [campaign])
 
+  useEffect(() => {
+    const snapScript = "https://app.sandbox.midtrans.com/snap/snap.js";
+    const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY as string;
+
+    const script = document.createElement('script');
+    script.src = snapScript;
+    script.setAttribute('data-client-key', clientKey);
+    script.async = true;
+
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    }
+  }, []);
+
   const handleDonate = async () => {
     setIsLoading(true);
 
     await donate(campaign._id, amount); 
+    fetchDonators();
 
-    router.push('/')
+    // router.push('/')
     setIsLoading(false);
   }
 
@@ -131,7 +150,7 @@ const CampaignDetails = () => {
             <div className="mt-[30px]">
               <input 
                 type="number"
-                placeholder="ETH 0.1"
+                placeholder="Rp 100"
                 step="0.01"
                 className="w-full py-[10px] sm:px-[20px] px-[15px] outline-none border-[1px] border-[#3a3a43] bg-transparent font-epilogue text-white text-[18px] leading-[30px] placeholder:text-[#4b5264] rounded-[10px]"
                 value={amount}

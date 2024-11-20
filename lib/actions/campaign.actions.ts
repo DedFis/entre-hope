@@ -20,6 +20,7 @@ import { getUserByClerkId } from './user.actions'
 const populateCampaign = (query: any) => {
   return query
     .populate({ path: 'owner', model: User, select: 'username' })
+    .populate({ path: 'donators', model: User, select: 'username' })
 }
 
 // owner: { type: Schema.Types.ObjectId, ref: 'User' }, // Reference to the User model
@@ -93,11 +94,15 @@ export async function addDonation(campaignId: string, userId: string, amount: st
 
         if (!campaign) throw new Error('Campaign not found')
 
-        campaign.donators.push(userId);
+        const user = await getUserByClerkId(userId);
+
+        campaign.donators.push(user._id);
         campaign.donations.push(amountNumber);
         campaign.ammountCollected += amountNumber;
 
         await campaign.save()
+
+        return JSON.parse(JSON.stringify(campaign));
     } catch (error) {
         handleError(error)
     }

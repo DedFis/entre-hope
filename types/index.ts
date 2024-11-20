@@ -81,9 +81,12 @@ export type CreateUserParams = {
 //     donators: { _id: string, name: string }[]; // Array of User references
 //     donations: number[]; // Donation amounts
 
-  export type Campaign = {
+  export type CampaignProps = {
     _id: string
-    owner: string
+    owner: {
+      _id: string
+      username: string
+    }
     title: string
     description: string
     target: number
@@ -91,11 +94,12 @@ export type CreateUserParams = {
     ammountCollected: number
     endDateTime: Date
     image: string
-    donator: {
-      _id: string
-      firstName: string
-      lastName: string
-    }
+    donators: [
+      {
+        _id: string
+        username: string
+      }
+    ]
     donations: {
       ammount: number
     }

@@ -2,7 +2,7 @@
 
 import React, { useContext, createContext } from 'react';
 import { useAuth } from '@clerk/nextjs'
-import { createCampaign, getAllCampaigns, getDonators, addDonation } from '@/lib/actions/campaign.actions';
+import { createCampaign, getAllCampaigns, getDonators, addDonation, getCampaignById } from '@/lib/actions/campaign.actions';
 import { getUserByClerkId } from '@/lib/actions/user.actions';
 import { Donator, SearchParamProps } from '@/types';
 
@@ -70,6 +70,7 @@ export const StateContextProvider = ({ children } : { children : React.ReactNode
 
     if (campaigns) {
         const parsedCampaings = campaigns?.data
+        console.log(parsedCampaings);
         
         return parsedCampaings;
     }
@@ -83,19 +84,58 @@ export const StateContextProvider = ({ children } : { children : React.ReactNode
 //     return filteredCampaigns;
 //   }
 
+  const generateDonationID = (userId: string) => {
+    const timestamp = Date.now();
+
+    return `${userId}-${timestamp}`;
+  }
+
+  const addDonationToDB = async (campaignId: string, userId: string, amount: string) => {
+    const data = await addDonation(campaignId, userId, amount);
+        
+    console.log(data);
+
+    return data;
+  }
+
   const donate = async (campaignId: string, amount: string) => {
     // const data = await contract.call('donateToCampaign', [pId], { value: ethers.utils.parseEther(amount)});
 
-    const res = await fetch('/api/webhook/clerk/user', {
+    const userResponse = await fetch('/api/webhook/clerk/user', {
       method: 'GET',
       headers: { 'content-type': 'application/json' },
     });
 
-    const resData = await res.json();
+    const userData = await userResponse.json();
+    const userId = userData.user.id;
 
-    const userId = resData.user.id;
+    const donationId = generateDonationID(userId);
 
-    const data = await addDonation(campaignId, userId, amount);
+    const campaign = await getCampaignById(campaignId);
+
+    const paymentParams = {
+      id: donationId,
+      campaignId: campaignId,
+      name: campaign.title,
+      amount: amount
+    }
+
+    const paymentResponse = await fetch('/api/midtrans/tokenizer', {
+      method: 'POST',
+      body: JSON.stringify(paymentParams),
+    })
+
+    const paymentData = await paymentResponse.json();
+    console.log(paymentData);
+
+    let data;
+
+    // window.snap.pay(paymentData.token);
+    (window as any).snap.pay(paymentData.token, {
+      onSuccess: () => {
+        data = addDonationToDB(campaignId, userId, amount);
+      }
+    });
 
     return data;
   }
