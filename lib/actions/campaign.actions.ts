@@ -55,12 +55,12 @@ export async function createCampaign({ userId, campaign, path }: CreateCampaignP
     }
 
     console.log(campaignValue)
-    
+
     const newCampaign = await Campaign.create(campaignValue)
     // await newCampaign.save();
 
     console.log(newCampaign)
-    
+
     revalidatePath(path)
 
     return JSON.parse(JSON.stringify(newCampaign))
@@ -86,32 +86,32 @@ export async function getCampaignById(campaignId: string) {
 
 // DONATE TO CAMPAIGN
 export async function addDonation(campaignId: string, userId: string, amount: string) {
-    try {
-        await connectToDatabase()
+  try {
+    await connectToDatabase()
 
-        const campaign = await populateCampaign(Campaign.findById(campaignId))
-        const amountNumber = Number.parseInt(amount);
+    const campaign = await populateCampaign(Campaign.findById(campaignId))
+    const amountNumber = Number.parseInt(amount);
 
-        if (!campaign) throw new Error('Campaign not found')
+    if (!campaign) throw new Error('Campaign not found')
 
-        const user = await getUserByClerkId(userId);
+    const user = await getUserByClerkId(userId);
 
-        campaign.donators.push(user._id);
-        campaign.donations.push(amountNumber);
+    campaign.donators.push(user._id);
+    campaign.donations.push(amountNumber);
 
-        const newCollected = (campaign.amountCollected || 0) + amountNumber;
-        console.log(Number.parseInt(campaign.amountCollected), amountNumber);
+    const newCollected = (campaign.amountCollected || 0) + amountNumber;
+    console.log(Number.parseInt(campaign.amountCollected), amountNumber);
 
-        campaign.amountCollected = newCollected;
+    campaign.amountCollected = newCollected;
 
-        await campaign.save()
+    await campaign.save()
 
-        console.log(campaign.amountCollected)
+    console.log(campaign.amountCollected)
 
-        return JSON.parse(JSON.stringify(campaign));
-    } catch (error) {
-        handleError(error)
-    }
+    return JSON.parse(JSON.stringify(campaign));
+  } catch (error) {
+    handleError(error)
+  }
 }
 
 // UPDATE
@@ -178,11 +178,13 @@ export async function getAllCampaigns({ query, limit = 0, page }: GetAllCampaign
 }
 
 // GET EVENTS BY ORGANIZER
-export async function getCampaignsByUser({ userId, limit = 6, page }: GetCampaignsByUserParams) {
+export async function getCampaignsByUser({ userId, limit = 0, page }: GetCampaignsByUserParams) {
   try {
     await connectToDatabase()
 
-    const conditions = { owner: userId }
+    const user = await getUserByClerkId(userId);
+
+    const conditions = { owner: user._id }
     const skipAmount = (page - 1) * limit
 
     const campaignsQuery = Campaign.find(conditions)

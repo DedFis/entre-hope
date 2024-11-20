@@ -1,25 +1,21 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from "react";
 
-import { DisplayCampaigns } from '../../../components/ui';
-import { useStateContext } from '../../../context'
-import { SearchParamProps } from '@/types';
+import { DisplayCampaigns } from "@/components/ui";
+import { useStateContext } from "@/context";
 
-const Home = () => {
+const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [campaigns, setCampaigns] = useState([]);
 
-  const { getCampaigns } = useStateContext();
+  const { getUserCampaigns } = useStateContext();
 
   const fetchCampaigns = async () => {
     setIsLoading(true);
     try {
       
-      const data = await getCampaigns({
-        params: { id: "" },
-        searchParams: { query: "", page: String(1) },
-      });
+      const data = await getUserCampaigns();
       
       setCampaigns(data);
     } catch (error) {
@@ -27,19 +23,19 @@ const Home = () => {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     fetchCampaigns();
   }, []);
 
   return (
-    <DisplayCampaigns 
+    <DisplayCampaigns
       title="All Campaigns"
       isLoading={isLoading}
       campaigns={campaigns}
     />
-  )
-}
+  );
+};
 
-export default Home
+export default Profile;
