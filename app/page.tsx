@@ -20,8 +20,6 @@ const Home = () => {
         params: { id: "" },
         searchParams: { query: "", page: String(1) },
       });
-
-      console.log(data);
       
       setCampaigns(data);
     } catch (error) {

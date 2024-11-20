@@ -92,8 +92,6 @@ export const StateContextProvider = ({ children } : { children : React.ReactNode
 
   const addDonationToDB = async (campaignId: string, userId: string, amount: string) => {
     const data = await addDonation(campaignId, userId, amount);
-        
-    console.log(data);
 
     return data;
   }
@@ -126,13 +124,15 @@ export const StateContextProvider = ({ children } : { children : React.ReactNode
     })
 
     const paymentData = await paymentResponse.json();
-    console.log(paymentData);
 
     let data;
 
     // window.snap.pay(paymentData.token);
     (window as any).snap.pay(paymentData.token, {
       onSuccess: () => {
+        data = addDonationToDB(campaignId, userId, amount);
+      },
+      onPending: () => {
         data = addDonationToDB(campaignId, userId, amount);
       }
     });

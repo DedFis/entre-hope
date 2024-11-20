@@ -98,9 +98,15 @@ export async function addDonation(campaignId: string, userId: string, amount: st
 
         campaign.donators.push(user._id);
         campaign.donations.push(amountNumber);
-        campaign.ammountCollected += amountNumber;
+
+        const newCollected = (campaign.amountCollected || 0) + amountNumber;
+        console.log(Number.parseInt(campaign.amountCollected), amountNumber);
+
+        campaign.amountCollected = newCollected;
 
         await campaign.save()
+
+        console.log(campaign.amountCollected)
 
         return JSON.parse(JSON.stringify(campaign));
     } catch (error) {

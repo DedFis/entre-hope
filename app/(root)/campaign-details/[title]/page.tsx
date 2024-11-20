@@ -35,7 +35,6 @@ const CampaignDetails = () => {
     }
 
     const campaign = JSON.parse(data);
-    console.log(campaign);
 
     const initialized = useRef(false)
 
@@ -131,7 +130,7 @@ const CampaignDetails = () => {
                 {donators.length > 0 ? donators.map((item, index) => (
                   <div key={`${item.donator._id}-${index}`} className="flex justify-between items-center gap-4">
                     <p className="font-epilogue font-normal text-[16px] text-[#b2b3bd] leading-[26px] break-ll">{index + 1}. {item.donator.username}</p>
-                    <p className="font-epilogue font-normal text-[16px] text-[#808191] leading-[26px] break-ll">{item.donation}</p>
+                    <p className="font-epilogue font-normal text-[16px] text-[#808191] leading-[26px] break-ll">Rp {item.donation}</p>
                   </div>
                 )) : (
                   <p className="font-epilogue font-normal text-[16px] text-[#808191] leading-[26px] text-justify">No donators yet. Be the first one!</p>

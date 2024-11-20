@@ -27,6 +27,7 @@ interface DisplayCampaignsProps {
 }
 
 const DisplayCampaigns: React.FC<DisplayCampaignsProps> = ({ title, isLoading, campaigns }) => {
+  // console.log(campaigns);
   const router = useRouter();
 
   const createQueryString = (name: string, value: Campaign) => {
