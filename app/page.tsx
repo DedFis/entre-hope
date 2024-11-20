@@ -14,7 +14,7 @@ const DonationPage: React.FC = () => {
       <h1 className="text-xl text-start font-semibold mb-5">About us</h1>
       <section className="justify-center mb-20">
         <div className="">
-          <img src={aboutUs.src} alt="banner" className="w-full h-[290px] object-cantain rounded-xl" />
+          <img src={aboutUs.src} alt="banner" className="w-full h-[355px] object-cantain rounded-xl" />
         </div>
         <div className="w-full flex items-center justify-center mt-20">
           <p className="text-lg w-4/5 font-semibold">

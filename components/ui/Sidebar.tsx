@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useClerk } from '@clerk/nextjs';
 
 import { logo, sun } from '../../public';
 import { navlinks } from '../../constants';
@@ -30,6 +31,7 @@ const Icon: React.FC<IconProps> = ({ styles, name, imgUrl, isActive, disabled, h
 )
 
 const Sidebar: React.FC = () => {
+  const { signOut } = useClerk();
   const router = useRouter();
   const [isActive, setIsActive] = useState('homepage');
 
@@ -51,6 +53,10 @@ const Sidebar: React.FC = () => {
               isActive={isActive}
               disabled={link.disabled}
               handleClick={() => {
+                if(link.name === "logout") {
+                  signOut();
+                }
+
                 if(!link.disabled) {
                   setIsActive(link.name);
                   router.push(link.link);

@@ -40,6 +40,5 @@ export const navlinks: NavLink[] = [
     name: 'logout',
     imgUrl: logout,
     link: '/',
-    disabled: true,
   },
 ];
