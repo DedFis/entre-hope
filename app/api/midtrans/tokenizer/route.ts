@@ -3,13 +3,14 @@ import { NextResponse } from "next/server";
 const Midtrans = require('midtrans-client');
 
 let snap = new Midtrans.Snap({
-    isProduction: false,
+    isProduction: true,
     serverKey: process.env.MIDTRANS_SECRET_KEY,
     clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY,
 })
 
 export async function POST(request: Request) {
     const { id, campaignId, campaignName, amount } = await request.json();
+
 
     let parameter = {
         // item_details: [{

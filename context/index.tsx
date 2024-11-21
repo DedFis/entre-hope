@@ -53,7 +53,7 @@ export const StateContextProvider = ({
         return null;
       }
 
-      const userId = resData.user.id;
+      const userId = resData.userId;
 
       const campaign = {
         owner: userId,
@@ -108,7 +108,7 @@ export const StateContextProvider = ({
       alert('Please Sign In first.');
       return null;
     } else {
-      const userId = userData.user.id;
+      const userId = userData.userId;
   
       const campaigns = await getCampaignsByUser({
         userId: userId,
@@ -150,12 +150,14 @@ export const StateContextProvider = ({
 
     const userData = await userResponse.json();
 
+    console.log(userData);
+
     if (userData.error) {
       alert('Please Sign In before Donating.');
       return null;
     }
 
-    const userId = userData.user.id;
+    const userId = userData.userId;
 
     const donationId = generateDonationID(userId);
 
